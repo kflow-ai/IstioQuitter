@@ -16,7 +16,7 @@ kube_exec_istio_quit = {
             containers=[
                 k8s.V1Container(
                     name="istio-quitter",
-                    image="istio-quitter",
+                    image="ghcr.io/kflow-ai/istioquitter:v0.1.0",
                     args=['-c',
                           'while pgrep airflow >/dev/null; do sleep 10; done; curl -s -f -XPOST http://127.0.0.1:15020/quitquitquit;'],
                     command=["/bin/sh"]
@@ -26,6 +26,8 @@ kube_exec_istio_quit = {
     )
 }
 ```
+
+If you're using this for the `KubernetesPodOperator`, be sure to add `k8s.V1Container(name="base")` to the beginning of the `containers` list so that the istio-quitter is added as a _sidecar_ instead of overriding the main container.
 
 The primary control loop is in the `args` section, but is a bash while-loop (`while pgrep airflow >/dev/null; do sleep 10; done;`) that runs as long as the `airflow` process is found. Once the `airflow` process is complete, it will send the curl request to the Istio endpoint.  
 
